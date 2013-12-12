@@ -1,0 +1,30 @@
+
+Tools to "compress" linux files that have holes in them and "decompress" the results.
+
+mksparse <infile> <outfile>       # infile may be - for stdin
+unsparse <infile> <outfile>       # outfile may be - for stdout
+
+
+$ truncate -s 1G image.bin
+
+$ du -k image.bin
+0       image.bin
+
+$ mkfs.ext4 -F image.bin
+...
+$ du -k image.bin
+33184   image.bin
+
+$ mksparse image.bin image.sparse
+$ mksparse image.bin - | gzip -9 > image.sparse.gz
+
+$ zcat image.sparse.gz | ./unsparse - image.new
+
+$ ls -la image.*
+-rw-rw-r-- 1 swetland swetland 1073741824 Dec 11 23:16 image.bin
+-rw------- 1 swetland swetland 1073741824 Dec 11 23:19 image.new
+-rw------- 1 swetland swetland   33976528 Dec 11 23:17 image.sparse
+-rw-rw-r-- 1 swetland swetland      34887 Dec 11 23:17 image.sparse.gz
+
+$ du -k image.new
+33184
