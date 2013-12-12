@@ -53,17 +53,13 @@ int writex(int fd, void *_data, size_t len) {
 }
 
 int copyx(int fin, int fout, size_t len, u8 *buf, size_t max) {
-	ssize_t r;
 	while (len > 0) {
-		r = read(fin, buf, max > len ? len : max);
-		if (r < 0) {
-			if (errno == EINTR)
-				continue;
+		size_t xfer = max > len ? len : max;
+		if (readx(fin, buf, xfer))
 			return -1;
-		}
-		if (writex(fout, buf, r))
+		if (writex(fout, buf, xfer))
 			return -1;
-		len -= r;
+		len -= xfer;
 	}
 	return 0;
 }
